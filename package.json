@@ -1,0 +1,21 @@
+{
+  "name": "back",
+  "version": "1.0.0",
+  "description": "Proyecto concesionario",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node --watch index.js"
+  },
+  "keywords": [
+    "web"
+  ],
+  "author": "Jefferson Chileno",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "connect-multiparty": "^2.2.0",
+    "express": "^4.21.2",
+    "mongoose": "^8.9.1"
+  }
+}
