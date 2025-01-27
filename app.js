@@ -1,30 +1,29 @@
-var express = require('express')
-var bodyParser = require('body-parser')
+var express = require('express');
+var bodyParser = require('body-parser');
 
-var app = express()
+var app = express();
 
-var libreriaRoutes = require('./routes/cita.routes')
+var citaRoutes = require('./routes/cita.routes');
+var usuarioRoutes = require('./routes/usuario.routes');
 
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
+// Middleware para BodyParser
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+// Configurar CORS
 app.use((req, res, next) => {
-	res.header('Access-Control-Allow-Origin', '*')
-	res.header(
-		'Access-Control-Allow-Headers',
-		'Authorization, X-API-KEY, X-Request-With, Content-Type,Accept, Access-Control-Allow, Request-Method'
-	)
-	res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS,PUT,DELETE')
-	res.header('Allow', 'GET, POST, OPTIONS, PUT, DELETE')
-	res.header('Access-Control-Allow-Credentials', true)
-	next()
-})
+  res.header('Access-Control-Allow-Origin', 'http://localhost:4200'); // Permitir solo desde Angular
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Authorization, X-API-KEY, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Request-Method'
+  );
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+  res.header('Allow', 'GET, POST, OPTIONS, PUT, DELETE');
+  next();
+});
 
-/*
-app.get('/', (req, res) => {
-	res.status(501).send(`<h1>Hola NO mundo</h1>`)
-})
-*/
+// Rutas
+app.use('/', citaRoutes);
+app.use('/api/usuarios', usuarioRoutes);
 
-app.use('/', libreriaRoutes)
-
-module.exports = app
+module.exports = app;
