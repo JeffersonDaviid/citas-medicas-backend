@@ -30,7 +30,7 @@ var controller = {
 
 			var citaStored = await cita.save()
 			if (!citaStored) {
-				return res.status(404).send({ message: 'No se guardo el cita' })
+				return res.status(404).send({ message: 'No se guardo la cita' })
 			}
 			return res.status(201).send({ cita: citaStored })
 		} catch (error) {
