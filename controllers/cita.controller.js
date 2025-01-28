@@ -22,7 +22,7 @@ var controller = {
 		try {
 			var cita = new Cita()
 			var params = req.body
-			cita.paciente = params.paciente
+			cita.cedulaPaciente = params.cedulaPaciente
 			cita.detalles = params.detalles
 			cita.hora = params.hora
 			cita.fechaRegistro = new Date()
@@ -42,9 +42,25 @@ var controller = {
 		try {
 			var citaId = req.params.id
 			if (!citaId) return res.status(404).send({ message: 'La cita no existe' })
-			var cita = await Libro.findById(citaId)
+			var cita = await Cita.findById(citaId)
 			if (!cita) return res.status(404).send({ message: 'La cita no existe' })
-			return res.status(200).send({ libro })
+			return res.status(200).send(cita)
+		} catch (error) {
+			return res.status(500).send({ message: 'Error al recuperar los datos' })
+		}
+	},
+
+	getCitaBetweenDates: async function (req, res) {
+		try {
+			var fechaInicio = new Date(req.params.dateFrom)
+			var fechaFin = new Date(req.params.dateTo)
+			if (!fechaInicio || !fechaFin)
+				return res.status(404).send({ message: 'Las fechas son requeridas' })
+			var citas = await Cita.find({
+				fechaCita: { $gte: fechaInicio, $lte: fechaFin },
+			})
+			if (!citas) return res.status(404).send({ message: 'No hay citas' })
+			return res.status(200).send(citas)
 		} catch (error) {
 			return res.status(500).send({ message: 'Error al recuperar los datos' })
 		}
