@@ -1,4 +1,8 @@
 var Doctor = require('../models/doctor.js');
+var HorarioDisponibilidad = require('../models/horario-disponibilidad.js');
+var moment = require('moment'); // Asegúrate de tener moment.js instalado
+
+
 var controller = {
   getDoctores: async function (req, res) {
     try {
@@ -18,12 +22,16 @@ var controller = {
       var params = req.body;
       doctor.nombre = params.nombre;
       doctor.especialidad = params.especialidad;
-      doctor.horarioDisponibilidad = params.horarioDisponibilidad;
 
       var doctorStored = await doctor.save();
       if (!doctorStored) {
         return res.status(404).send({ message: 'No se guardó el doctor' });
       }
+
+      // Generar horarios disponibles
+      const horarios = generateHorariosDisponibles(doctorStored._id, new Date(), 30);
+      await HorarioDisponibilidad.insertMany(horarios);
+
       return res.status(201).send({ doctor: doctorStored });
     } catch (error) {
       return res.status(500).send({ message: 'Error al guardar los datos' });
@@ -68,4 +76,38 @@ var controller = {
     }
   },
 };
+
+
+function generateHorariosDisponibles(doctorId, startDate, interval) {
+  let horarios = [];
+  let currentDay = moment(startDate);
+
+  // Si es sábado (6) o domingo (0), mover al próximo lunes
+  if (currentDay.day() === 6) {
+    currentDay.add(2, 'days');
+  } else if (currentDay.day() === 0) {
+    currentDay.add(1, 'days');
+  }
+
+  // Generar horarios de lunes a viernes
+  for (let i = 0; i < 5; i++) {
+    let dayStart = currentDay.clone().startOf('day').add(8, 'hours'); // Comienza a las 8 AM
+    let dayEnd = currentDay.clone().startOf('day').add(17, 'hours'); // Termina a las 5 PM
+
+    while (dayStart.isBefore(dayEnd)) {
+      horarios.push({
+        doctor: doctorId,
+        dia: currentDay.format('YYYY-MM-DD'),
+        hora: dayStart.format('HH:mm'),
+        estado: 'disponible'
+      });
+      dayStart.add(interval, 'minutes');
+    }
+
+    currentDay.add(1, 'days');
+  }
+
+  return horarios;
+}
+
 module.exports = controller;
