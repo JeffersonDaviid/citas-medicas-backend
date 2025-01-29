@@ -4,6 +4,9 @@ var bodyParser = require('body-parser');
 var app = express();
 
 var citaRoutes = require('./routes/cita.routes');
+var pacienteRoutes = require('./routes/paciente.routes');
+var horarioDisponibilidadRoutes = require('./routes/horario-disponibilidad.routes');
+var doctorRoutes = require('./routes/doctor.routes');
 var usuarioRoutes = require('./routes/usuario.routes');
 
 // Middleware para BodyParser
@@ -23,7 +26,10 @@ app.use((req, res, next) => {
 });
 
 // Rutas
-app.use('/', citaRoutes);
 app.use('/api/usuarios', usuarioRoutes);
+app.use('/', citaRoutes);
+app.use('/', pacienteRoutes);
+app.use('/', horarioDisponibilidadRoutes);
+app.use('/', doctorRoutes);
 
 module.exports = app;
