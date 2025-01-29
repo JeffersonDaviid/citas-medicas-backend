@@ -26,7 +26,18 @@ var controller = {
 			cita.detalles = params.detalles
 			cita.hora = params.hora
 			cita.fechaRegistro = new Date()
-			cita.fechaCita = params.fechaCita
+
+			// Suponiendo que params.fechaCita es un string o un objeto Date
+			const fechaCita = new Date(params.fechaCita) // Convertir a objeto Date si no lo es
+
+			// Ajustar la hora a las 12:00 PM (mediodía) en UTC
+			const year = fechaCita.getUTCFullYear()
+			const month = fechaCita.getUTCMonth()
+			const day = fechaCita.getUTCDate()
+			const fechaCitaAjustada = new Date(Date.UTC(year, month, day, 12, 0, 0)) // 12:00 PM UTC
+
+			// Asignar la fecha ajustada a cita.fechaCita
+			cita.fechaCita = fechaCitaAjustada
 
 			var citaStored = await cita.save()
 			if (!citaStored) {
