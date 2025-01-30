@@ -1,5 +1,5 @@
-var HorarioDisponibilidad = require('../models/horario-disponibilidad.js');
-var controller = {
+const HorarioDisponibilidad = require('../models/horario-disponibilidad.js');
+const controller = {
   getHorarios: async function (req, res) {
     try {
       const horarios = await HorarioDisponibilidad.find({}).sort();
@@ -9,6 +9,17 @@ var controller = {
       return res.status(200).send({ horarios });
     } catch (error) {
       return res.status(500).send({ message: 'Error al recuperar los datos' });
+    }
+  },
+
+
+  getHorario: async function (req, res) {
+    try {
+        const horarios = await Horario.find();
+        return res.status(200).send({ horarios });
+    } catch (error) {
+        console.error("Error en getHorario:", error);
+        return res.status(500).send({ message: "Error al recuperar los datos" });
     }
   },
 
