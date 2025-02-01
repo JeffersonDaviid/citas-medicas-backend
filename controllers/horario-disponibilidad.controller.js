@@ -1,4 +1,6 @@
 const HorarioDisponibilidad = require('../models/horario-disponibilidad.js');
+const mongoose = require('mongoose')
+const Doctor = require('../models/doctor.js');
 const controller = {
   getHorarios: async function (req, res) {
     try {
@@ -9,17 +11,6 @@ const controller = {
       return res.status(200).send({ horarios });
     } catch (error) {
       return res.status(500).send({ message: 'Error al recuperar los datos' });
-    }
-  },
-
-
-  getHorario: async function (req, res) {
-    try {
-        const horarios = await Horario.find();
-        return res.status(200).send({ horarios });
-    } catch (error) {
-        console.error("Error en getHorario:", error);
-        return res.status(500).send({ message: "Error al recuperar los datos" });
     }
   },
 
@@ -50,6 +41,44 @@ const controller = {
       return res.status(200).send({ horario });
     } catch (error) {
       return res.status(500).send({ message: 'Error al recuperar los datos' });
+    }
+  },
+
+  getHorarioD: async function (req, res) {
+    try {
+      const { doctor, fechaInicio, fechaFin } = req.query;
+
+      if (!doctor || !fechaInicio || !fechaFin) {
+        return res.status(400).send({ message: "Se requiere doctor y fechas" });
+      }
+
+      let doctorId = doctor;
+
+      if (!mongoose.Types.ObjectId.isValid(doctor)) {
+        const doctorObj = await Doctor.findOne({ nombre: doctor }).select('_id');
+        if (!doctorObj) {
+          return res.status(404).send({ message: 'Doctor no encontrado' });
+        }
+        doctorId = doctorObj._id;
+      }
+
+
+      console.log(`Buscando horarios para doctor ${doctor} entre ${fechaInicio} y ${fechaFin}`);
+
+      const horarios = await HorarioDisponibilidad.find({
+        doctor: doctorId,
+        dia: { $gte: fechaInicio, $lte: fechaFin }
+      });
+
+      if (!horarios.length) {
+        return res.status(404).send({ message: 'No hay horarios disponibles en este rango de fechas' });
+      }
+
+      return res.status(200).send({ horarios });
+
+    } catch (error) {
+      console.error('Error en getHorarioD:', error);
+      return res.status(500).send({ message: 'Error al recuperar los datos', error: error.message });
     }
   },
 

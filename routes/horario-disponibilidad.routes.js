@@ -18,4 +18,7 @@ router.put('/horario/:id', HorarioDisponibilidadController.updateHorario);
 // Eliminar horario
 router.delete('/horario/:id', HorarioDisponibilidadController.deleteHorario);
 
+//Horarios disponibles doctor y fecha
+router.get('/horariosD', HorarioDisponibilidadController.getHorarioD)
+
 module.exports = router;
