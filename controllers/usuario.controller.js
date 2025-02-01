@@ -37,25 +37,26 @@ const controller = {
   login: async function (req, res) {
     try {
       const { email, password } = req.body;
-
+  
       // Buscar usuario por correo electrónico
       const usuario = await Usuario.findOne({ email });
       if (!usuario) {
         return res.status(404).send({ message: 'Usuario no encontrado' });
       }
-
+  
       // Comparar la contraseña ingresada con la almacenada directamente en texto plano
       console.log('Contraseña ingresada:', password);
       console.log('Contraseña almacenada:', usuario.password);
-
+  
       if (password !== usuario.password) {
         return res.status(401).send({ message: 'Correo o contraseña incorrectos' });
       }
-
+  
       // Crear token de autenticación
       const token = jwt.sign({ id: usuario._id }, 'secreto', { expiresIn: '1h' });
-
-      return res.status(200).send({ message: 'Inicio de sesión exitoso', token });
+  
+      // Incluir el usuario en la respuesta
+      return res.status(200).send({ message: 'Inicio de sesión exitoso', user: usuario, token });
     } catch (error) {
       return res.status(500).send({ message: 'Error al iniciar sesión', error });
     }

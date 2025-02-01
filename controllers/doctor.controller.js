@@ -90,7 +90,7 @@ function generateHorariosDisponibles(doctorId, startDate, interval) {
   }
 
   // Generar horarios de lunes a viernes
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 10; i++) {
     let dayStart = currentDay.clone().startOf('day').add(8, 'hours'); // Comienza a las 8 AM
     let dayEnd = currentDay.clone().startOf('day').add(17, 'hours'); // Termina a las 5 PM
 
