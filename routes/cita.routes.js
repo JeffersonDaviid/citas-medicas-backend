@@ -19,6 +19,9 @@ router.post('/guardar-cita', CitaController.saveCita)
 // ver una cita
 router.get('/cita/:id', CitaController.getCita)
 
+// Obtener citas por una fecha específica
+router.get('/citas-por-fecha', CitaController.getCitasPorFecha);
+
 // ver citas entre fechas
 router.get('/citas/:dateFrom/:dateTo', CitaController.getCitaBetweenDates)
 

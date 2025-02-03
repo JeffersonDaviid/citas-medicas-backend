@@ -62,7 +62,40 @@ saveCita: async function (req, res) {
 			return res.status(500).send({ message: 'Error al recuperar los datos' })
 		}
 	},
-
+	
+	getCitasPorFecha: async function (req, res) {
+		try {
+			// Capturar la fecha del parámetro de consulta
+			const { fecha } = req.query;
+	
+			if (!fecha) {
+				return res.status(400).send({ message: 'La fecha es requerida' });
+			}
+	
+			// Convertir la fecha a objeto Date (asegurarse de que se maneja correctamente)
+			const fechaInicio = new Date(fecha);
+			const fechaFin = new Date(fecha);
+			fechaFin.setUTCHours(23, 59, 59, 999); // Final del día
+	
+			// Buscar citas en el rango de la fecha
+			const citas = await Cita.find({
+				fechaCita: {
+					$gte: fechaInicio, // Inicio del día
+					$lte: fechaFin,    // Fin del día
+				},
+			});
+	
+			if (!citas || citas.length === 0) {
+				return res.status(404).send({ message: 'No hay citas para esta fecha' });
+			}
+	
+			return res.status(200).send({ citas });
+		} catch (error) {
+			console.error('Error al obtener citas por fecha:', error);
+			return res.status(500).send({ message: 'Error al obtener citas', error });
+		}
+	},
+	
 	getCitaBetweenDates: async function (req, res) {
 		try {
 			var fechaInicio = new Date(req.params.dateFrom)
