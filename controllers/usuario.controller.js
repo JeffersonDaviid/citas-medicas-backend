@@ -1,7 +1,40 @@
 const Usuario = require('../models/usuario');
+const Doctor = require('../models/doctor');  // Importar el esquema de doctores
 const jwt = require('jsonwebtoken');
 
 const controller = {
+  login: async function (req, res) {
+    try {
+      const { email, password, tipoUsuario } = req.body;
+
+      // Determinar la colección según el tipo de usuario
+      const collection = tipoUsuario === 'paciente' ? Usuario : Doctor;
+
+      // Buscar en la colección correspondiente
+      const usuario = await collection.findOne({ email });
+      if (!usuario) {
+        return res.status(404).send({ message: 'Usuario no encontrado' });
+      }
+
+      // Comparar la contraseña ingresada con la almacenada
+      if (password !== usuario.password) {
+        return res.status(401).send({ message: 'Correo o contraseña incorrectos' });
+      }
+
+      // Crear token de autenticación
+      const token = jwt.sign({ id: usuario._id }, 'secreto', { expiresIn: '1h' });
+
+      // Incluir el usuario en la respuesta
+      return res.status(200).send({
+        message: 'Inicio de sesión exitoso',
+        user: usuario,
+        token,
+      });
+    } catch (error) {
+      return res.status(500).send({ message: 'Error al iniciar sesión', error });
+    }
+  },
+
   register: async function (req, res) {
     try {
       const {
@@ -15,16 +48,16 @@ const controller = {
         securityAnswer,
       } = req.body;
 
-      // Crear nuevo usuario
+      // Crear nuevo usuario con tipoUsuario predeterminado como paciente
       const usuario = new Usuario({
         nombre,
         email,
-        password, // Se guarda directamente en texto plano
+        password,
         cedula,
         fechaNacimiento,
         telefono,
         securityQuestion,
-        securityAnswer, // Se guarda directamente en texto plano
+        securityAnswer,
       });
 
       const usuarioGuardado = await usuario.save();
@@ -77,15 +110,10 @@ const controller = {
         return res.status(404).send({ message: 'Usuario no encontrado' });
       }
 
-      // Comparar respuesta de seguridad directamente en texto plano
-      console.log('Respuesta ingresada:', securityAnswer);
-      console.log('Respuesta almacenada:', usuario.securityAnswer);
-
       if (securityAnswer !== usuario.securityAnswer) {
         return res.status(400).send({ message: 'Respuesta de seguridad incorrecta' });
       }
 
-      // Validar que la nueva contraseña cumpla los requisitos
       const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
       if (!passwordRegex.test(newPassword)) {
         return res.status(400).send({
@@ -93,7 +121,6 @@ const controller = {
         });
       }
 
-      // Actualizar contraseña directamente en texto plano
       usuario.password = newPassword;
       await usuario.save();
 
