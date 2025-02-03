@@ -1,4 +1,5 @@
 var Cita = require('../models/cita.js')
+var Doctor = require('../models/doctor.js')
 var transporter = require('../nodemailer.js')
 const Doctor = require('../models/doctor.js')
 const Usuario = require('../models/usuario.js')
@@ -40,49 +41,44 @@ var controller = {
 			// Asignar la fecha ajustada a cita.fechaCita
 			cita.fechaCita = fechaCitaAjustada
 
-			var citaStored = await cita.save()
-			if (!citaStored) {
-				return res.status(404).send({ message: 'No se guardo la cita' })
-			}
+    var citaStored = await cita.save();
+    if (!citaStored) {
+      return res.status(404).send({ message: 'No se guardo la cita' });
+    }
 
-			// Enviar correo electrónico al usuario
-			var paciente = await Usuario.findOne({ cedula: cita.cedulaPaciente })
-			var doctorRes = await Doctor.findById(cita.doctor)
-			const mailOptions = {
-				from: 'c99652451@gmail.com',
-				to: paciente.email,
-				subject: 'Detalles de tu cita médica',
-				html: `
-  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;">
-    <h2 style="color: #2c3e50; text-align: center;">📅 Cita Médica Confirmada</h2>
-    <p style="color: #34495e; text-align: center;">Hola <strong>${paciente.nombre}</strong>, tu cita ha sido registrada con éxito.</p>
-    
-    <div style="background-color: #ffffff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
-      <p><strong>ID:</strong> ${citaStored._id}</p>
-      <p><strong>Detalles:</strong> ${citaStored.detalles}</p>
-      <p><strong>Especialidad:</strong> ${doctorRes.especialidad}</p>
-      <p><strong>Hora:</strong> ${citaStored.hora}</p>
-      <p><strong>Fecha de Cita:</strong> ${citaStored.fechaCita}</p>
+	// Enviar correo electrónico al usuario
+	const userEmail = req.user.email; // Asegúrate de que el correo electrónico del usuario esté disponible en req.user
+	const doctor = await Doctor.findById(cita.doctor);	
+	const formattedDate = cita.fechaCita.toLocaleDateString('es-ES', {
+		day: '2-digit',
+		month: '2-digit',
+		year: 'numeric',
+	  });
+	const mailOptions = {
+	  from: 'c99652451@gmail.com',
+	  to: userEmail,
+	  subject: 'Detalles de tu cita médica',
+	  html: `
+    <div style="border: 1px solid #ccc; padding: 20px; font-family: Arial, sans-serif; background-color: #f9f9f9;">
+      <h2 style="color: #333;">Detalles de tu cita médica</h2>
+      <p>Hola, tu cita ha sido registrada con éxito. Aquí están los detalles:</p>
+      <p><strong>Paciente:</strong> ${cita.cedulaPaciente}</p>
+      <p><strong>Doctor:</strong> ${doctor.nombre}</p>
+      <p><strong>Detalles:</strong> ${cita.detalles}</p>
+      <p><strong>Hora:</strong> ${cita.hora}</p>
+      <p><strong>Fecha de Cita:</strong> ${formattedDate}</p>
     </div>
-
-    <p style="text-align: center; margin-top: 20px;">
-      📍 No olvides llegar 15 minutos antes de tu cita.
-    </p>
-
-    <p style="text-align: center; font-size: 14px; color: #7f8c8d;">
-      📩 Si tienes preguntas, contáctanos a <a href="mailto:contacto@clinica.com" style="color: #3498db;">contacto@clinica.com</a>
-    </p>
-  </div>
   `,
-			}
+};
 
-			transporter.sendMail(mailOptions, (error, info) => {
-				if (error) {
-					console.error('Error al enviar el correo electrónico:', error)
-				} else {
-					console.log('Correo electrónico enviado:', info.response)
-				}
-			})
+	transporter.sendMail(mailOptions, (error, info) => {
+	  if (error) {
+		console.error('Error al enviar el correo electrónico:', error);
+	  } else {
+		console.log('Correo electrónico enviado:', info.response);
+	  }
+	});
+
 
 			var citaStored = await cita.save()
 			if (!citaStored) {
