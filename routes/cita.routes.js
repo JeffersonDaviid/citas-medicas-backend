@@ -23,8 +23,11 @@ router.get('/inicio', (req, res) => {
   
   // Actualizar cita
   router.put('/cita/:id', authMiddleware, CitaController.updateCita);
+
+  router.get('/citas-por-fecha', authMiddleware, CitaController.getCitasPorFecha);
   
   // Eliminar cita
 router.delete('/cita/:id', authMiddleware, CitaController.deleteCita);
 
-module.exports = router;
+module.exports = router
+

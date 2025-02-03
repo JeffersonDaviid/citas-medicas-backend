@@ -1,6 +1,8 @@
 var Cita = require('../models/cita.js')
 var Doctor = require('../models/doctor.js')
 var transporter = require('../nodemailer.js')
+const Doctor = require('../models/doctor.js')
+const Usuario = require('../models/usuario.js')
 var controller = {
 	inicio: function (req, res) {
 		return res
@@ -20,27 +22,26 @@ var controller = {
 		}
 	},
 
-saveCita: async function (req, res) {
-  try {
-    var cita = new Cita();
-    var params = req.body;
-    cita.cedulaPaciente = params.cedulaPaciente;
-    cita.detalles = params.detalles;
-    cita.hora = params.hora;
-	cita.doctor = params.doctor;
-    cita.fechaRegistro = new Date();
+	saveCita: async function (req, res) {
+		try {
+			var cita = new Cita()
+			var params = req.body
+			cita.cedulaPaciente = params.cedulaPaciente
+			cita.detalles = params.detalles
+			cita.hora = params.hora
+			cita.doctor = params.doctor
+			cita.fechaRegistro = new Date()
 
-    // Suponiendo que params.fechaCita es un string o un objeto Date
-    const fechaCita = new Date(params.fechaCita); // Convertir a objeto Date si no lo es
+			// Suponiendo que params.fechaCita es un string en formato DD-MM-YYYY
+			const [day, month, year] = params.fechaCita.split('-')
+			const fechaCita = new Date(`${year}-${month}-${day}`) // Convertir a objeto Date en formato YYYY-MM-DD
 
-    // Ajustar la hora a las 12:00 PM (mediodía) en UTC
-    const year = fechaCita.getUTCFullYear();
-    const month = fechaCita.getUTCMonth();
-    const day = fechaCita.getUTCDate();
-    const fechaCitaAjustada = new Date(Date.UTC(year, month, day, 12, 0, 0)); // 12:00 PM UTC
+			// Ajustar la hora a las 12:00 PM (mediodía) en UTC
+			const fechaCitaAjustada = new Date(Date.UTC(year, month - 1, day, 12, 0, 0)) // 12:00 PM UTC
 
-    // Asignar la fecha ajustada a cita.fechaCita
-    cita.fechaCita = fechaCitaAjustada;
+			// Asignar la fecha ajustada a cita.fechaCita
+			cita.fechaCita = fechaCitaAjustada
+
 
     var citaStored = await cita.save();
     if (!citaStored) {
@@ -80,13 +81,16 @@ saveCita: async function (req, res) {
 	  }
 	});
 
-
-    return res.status(201).send({ cita: citaStored });
-  } catch (error) {
-    console.error('Error al guardar la cita:', error);
-    return res.status(500).send({ message: 'Error al guardar los datos', error });
-  }
-},
+			var citaStored = await cita.save()
+			if (!citaStored) {
+				return res.status(404).send({ message: 'No se guardo la cita' })
+			}
+			return res.status(201).send({ cita: citaStored })
+		} catch (error) {
+			console.error('Error al guardar la cita:', error)
+			return res.status(500).send({ message: 'Error al guardar los datos', error })
+		}
+	},
 
 	getCita: async function (req, res) {
 		try {
@@ -94,22 +98,75 @@ saveCita: async function (req, res) {
 			if (!citaId) return res.status(404).send({ message: 'La cita no existe' })
 			var cita = await Cita.findById(citaId)
 			if (!cita) return res.status(404).send({ message: 'La cita no existe' })
-			return res.status(200).send(cita)
+			var paciente = await Usuario.findOne({ cedula: cita.cedulaPaciente })
+			if (!paciente) return res.status(404).send({ message: 'El paciente no existe' })
+			var doctorRes = await Doctor.findById(cita.doctor)
+			if (!doctorRes) return res.status(404).send({ message: 'El doctor no existe' })
+
+			var citaObj = {
+				_id: cita._id,
+				fechaCita: cita.fechaCita,
+				hora: cita.hora,
+				detalles: cita.detalles,
+				paciente: {
+					nombre: paciente.nombre,
+					cedula: paciente.cedula,
+					telefono: paciente.telefono,
+					email: paciente.email,
+				},
+				doctor: {
+					nombre: doctorRes.nombre,
+					especialidad: doctorRes.especialidad,
+				},
+			}
+
+			return res.status(200).send(citaObj)
 		} catch (error) {
 			return res.status(500).send({ message: 'Error al recuperar los datos' })
 		}
 	},
-
+	
+	getCitasPorFecha: async function (req, res) {
+		try {
+			// Capturar la fecha del parámetro de consulta
+			const { fecha } = req.query;
+	
+			if (!fecha) {
+				return res.status(400).send({ message: 'La fecha es requerida' });
+			}
+	
+			// Convertir la fecha a objeto Date (asegurarse de que se maneja correctamente)
+			const fechaInicio = new Date(fecha);
+			const fechaFin = new Date(fecha);
+			fechaFin.setUTCHours(23, 59, 59, 999); // Final del día
+	
+			// Buscar citas en el rango de la fecha
+			const citas = await Cita.find({
+				fechaCita: {
+					$gte: fechaInicio, // Inicio del día
+					$lte: fechaFin,    // Fin del día
+				},
+			});
+	
+			if (!citas || citas.length === 0) {
+				return res.status(404).send({ message: 'No hay citas para esta fecha' });
+			}
+	
+			return res.status(200).send({ citas });
+		} catch (error) {
+			console.error('Error al obtener citas por fecha:', error);
+			return res.status(500).send({ message: 'Error al obtener citas', error });
+		}
+	},
+	
 	getCitaBetweenDates: async function (req, res) {
 		try {
 			var fechaInicio = new Date(req.params.dateFrom)
 			var fechaFin = new Date(req.params.dateTo)
 			if (!fechaInicio || !fechaFin)
 				return res.status(404).send({ message: 'Las fechas son requeridas' })
-			var citas = await Cita.find({
-				fechaCita: { $gte: fechaInicio, $lte: fechaFin },
-			})
-			if (!citas) return res.status(404).send({ message: 'No hay citas' })
+			var citas = await Cita.find({ fechaCita: { $gte: fechaInicio, $lt: fechaFin } })
+			if (citas.length === 0) return res.status(204).send({ message: 'No hay citas' })
 			return res.status(200).send(citas)
 		} catch (error) {
 			return res.status(500).send({ message: 'Error al recuperar los datos' })
