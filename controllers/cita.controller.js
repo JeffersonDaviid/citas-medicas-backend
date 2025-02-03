@@ -1,4 +1,5 @@
 var Cita = require('../models/cita.js')
+var Doctor = require('../models/doctor.js')
 var transporter = require('../nodemailer.js')
 var controller = {
 	inicio: function (req, res) {
@@ -48,17 +49,28 @@ saveCita: async function (req, res) {
 
 	// Enviar correo electrónico al usuario
 	const userEmail = req.user.email; // Asegúrate de que el correo electrónico del usuario esté disponible en req.user
+	const doctor = await Doctor.findById(cita.doctor);	
+	const formattedDate = cita.fechaCita.toLocaleDateString('es-ES', {
+		day: '2-digit',
+		month: '2-digit',
+		year: 'numeric',
+	  });
 	const mailOptions = {
 	  from: 'c99652451@gmail.com',
 	  to: userEmail,
 	  subject: 'Detalles de tu cita médica',
-	  text: `Hola, tu cita ha sido registrada con éxito. Aquí están los detalles:\n\n
-			 ID: ${citaStored._id}\n
-			 Paciente: ${citaStored.cedulaPaciente}\n
-			 Detalles: ${citaStored.detalles}\n
-			 Hora: ${citaStored.hora}\n
-			 Fecha de Cita: ${citaStored.fechaCita}\n`
-	};
+	  html: `
+    <div style="border: 1px solid #ccc; padding: 20px; font-family: Arial, sans-serif; background-color: #f9f9f9;">
+      <h2 style="color: #333;">Detalles de tu cita médica</h2>
+      <p>Hola, tu cita ha sido registrada con éxito. Aquí están los detalles:</p>
+      <p><strong>Paciente:</strong> ${cita.cedulaPaciente}</p>
+      <p><strong>Doctor:</strong> ${doctor.nombre}</p>
+      <p><strong>Detalles:</strong> ${cita.detalles}</p>
+      <p><strong>Hora:</strong> ${cita.hora}</p>
+      <p><strong>Fecha de Cita:</strong> ${formattedDate}</p>
+    </div>
+  `,
+};
 
 	transporter.sendMail(mailOptions, (error, info) => {
 	  if (error) {
