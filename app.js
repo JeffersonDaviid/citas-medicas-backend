@@ -29,5 +29,6 @@ app.use('/api/usuarios', usuarioRoutes);
 app.use('/', citaRoutes);
 app.use('/', horarioDisponibilidadRoutes);
 app.use('/', doctorRoutes);
+app.use('/api/doctores', doctorRoutes);
 
 module.exports = app;
