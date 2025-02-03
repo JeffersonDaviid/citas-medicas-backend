@@ -1,7 +1,6 @@
 var Cita = require('../models/cita.js')
 var Doctor = require('../models/doctor.js')
 var transporter = require('../nodemailer.js')
-const Doctor = require('../models/doctor.js')
 const Usuario = require('../models/usuario.js')
 var controller = {
 	inicio: function (req, res) {
@@ -41,24 +40,24 @@ var controller = {
 			// Asignar la fecha ajustada a cita.fechaCita
 			cita.fechaCita = fechaCitaAjustada
 
-    var citaStored = await cita.save();
-    if (!citaStored) {
-      return res.status(404).send({ message: 'No se guardo la cita' });
-    }
+			var citaStored = await cita.save()
+			if (!citaStored) {
+				return res.status(404).send({ message: 'No se guardo la cita' })
+			}
 
-	// Enviar correo electrónico al usuario
-	const userEmail = req.user.email; // Asegúrate de que el correo electrónico del usuario esté disponible en req.user
-	const doctor = await Doctor.findById(cita.doctor);	
-	const formattedDate = cita.fechaCita.toLocaleDateString('es-ES', {
-		day: '2-digit',
-		month: '2-digit',
-		year: 'numeric',
-	  });
-	const mailOptions = {
-	  from: 'c99652451@gmail.com',
-	  to: userEmail,
-	  subject: 'Detalles de tu cita médica',
-	  html: `
+			// Enviar correo electrónico al usuario
+			const userEmail = req.user.email // Asegúrate de que el correo electrónico del usuario esté disponible en req.user
+			const doctor = await Doctor.findById(cita.doctor)
+			const formattedDate = cita.fechaCita.toLocaleDateString('es-ES', {
+				day: '2-digit',
+				month: '2-digit',
+				year: 'numeric',
+			})
+			const mailOptions = {
+				from: 'c99652451@gmail.com',
+				to: userEmail,
+				subject: 'Detalles de tu cita médica',
+				html: `
     <div style="border: 1px solid #ccc; padding: 20px; font-family: Arial, sans-serif; background-color: #f9f9f9;">
       <h2 style="color: #333;">Detalles de tu cita médica</h2>
       <p>Hola, tu cita ha sido registrada con éxito. Aquí están los detalles:</p>
@@ -69,16 +68,15 @@ var controller = {
       <p><strong>Fecha de Cita:</strong> ${formattedDate}</p>
     </div>
   `,
-};
+			}
 
-	transporter.sendMail(mailOptions, (error, info) => {
-	  if (error) {
-		console.error('Error al enviar el correo electrónico:', error);
-	  } else {
-		console.log('Correo electrónico enviado:', info.response);
-	  }
-	});
-
+			transporter.sendMail(mailOptions, (error, info) => {
+				if (error) {
+					console.error('Error al enviar el correo electrónico:', error)
+				} else {
+					console.log('Correo electrónico enviado:', info.response)
+				}
+			})
 
 			var citaStored = await cita.save()
 			if (!citaStored) {
