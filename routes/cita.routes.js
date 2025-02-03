@@ -2,30 +2,29 @@ var express = require('express')
 var router = express.Router()
 
 var CitaController = require('../controllers/cita.controller')
-var multiparty = require('connect-multiparty')
-var multipartyMiddleware = multiparty({ uploadDir: './uploads' })
+var authMiddleware = require('../middleware/auth.middleware')
 
 // Home
 router.get('/inicio', (req, res) => {
-	CitaController.inicio(req, res)
-})
+	CitaController.inicio(req, res);
+  });
+  
+  // Ver citas
+  router.get('/citas', authMiddleware, CitaController.getCitas);
+  
+  // Guardar citas
+  router.post('/guardar-cita', authMiddleware, CitaController.saveCita);
+  
+  // Ver una cita
+  router.get('/cita/:id', authMiddleware, CitaController.getCita);
+  
+  // Ver citas entre fechas
+  router.get('/citas/:dateFrom/:dateTo', authMiddleware, CitaController.getCitaBetweenDates);
+  
+  // Actualizar cita
+  router.put('/cita/:id', authMiddleware, CitaController.updateCita);
+  
+  // Eliminar cita
+router.delete('/cita/:id', authMiddleware, CitaController.deleteCita);
 
-// Ver citas
-router.get('/citas', CitaController.getCitas)
-
-// guardar citas
-router.post('/guardar-cita', CitaController.saveCita)
-
-// ver una cita
-router.get('/cita/:id', CitaController.getCita)
-
-// ver citas entre fechas
-router.get('/citas/:dateFrom/:dateTo', CitaController.getCitaBetweenDates)
-
-// actualizar cita
-router.put('/cita/:id', CitaController.updateCita)
-
-// eliminar cita
-router.delete('/cita/:id', CitaController.deleteCita)
-
-module.exports = router
+module.exports = router;
