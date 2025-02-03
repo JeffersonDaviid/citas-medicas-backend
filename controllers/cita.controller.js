@@ -1,4 +1,5 @@
-const Cita = require('../models/cita.js')
+var Cita = require('../models/cita.js')
+var transporter = require('../nodemailer.js')
 const Doctor = require('../models/doctor.js')
 const Usuario = require('../models/usuario.js')
 var controller = {
@@ -39,6 +40,34 @@ var controller = {
 
 			// Asignar la fecha ajustada a cita.fechaCita
 			cita.fechaCita = fechaCitaAjustada
+
+
+    var citaStored = await cita.save();
+    if (!citaStored) {
+      return res.status(404).send({ message: 'No se guardo la cita' });
+    }
+
+	// Enviar correo electrónico al usuario
+	const userEmail = req.user.email; // Asegúrate de que el correo electrónico del usuario esté disponible en req.user
+	const mailOptions = {
+	  from: 'c99652451@gmail.com',
+	  to: userEmail,
+	  subject: 'Detalles de tu cita médica',
+	  text: `Hola, tu cita ha sido registrada con éxito. Aquí están los detalles:\n\n
+			 ID: ${citaStored._id}\n
+			 Paciente: ${citaStored.cedulaPaciente}\n
+			 Detalles: ${citaStored.detalles}\n
+			 Hora: ${citaStored.hora}\n
+			 Fecha de Cita: ${citaStored.fechaCita}\n`
+	};
+
+	transporter.sendMail(mailOptions, (error, info) => {
+	  if (error) {
+		console.error('Error al enviar el correo electrónico:', error);
+	  } else {
+		console.log('Correo electrónico enviado:', info.response);
+	  }
+	});
 
 			var citaStored = await cita.save()
 			if (!citaStored) {
