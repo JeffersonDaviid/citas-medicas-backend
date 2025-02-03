@@ -34,14 +34,12 @@ var controller = {
 
 			// Suponiendo que params.fechaCita es un string en formato DD-MM-YYYY
 			const [day, month, year] = params.fechaCita.split('-')
-			const fechaCita = new Date(`${year}-${month}-${day}`) // Convertir a objeto Date en formato YYYY-MM-DD
 
 			// Ajustar la hora a las 12:00 PM (mediodía) en UTC
 			const fechaCitaAjustada = new Date(Date.UTC(year, month - 1, day, 12, 0, 0)) // 12:00 PM UTC
 
 			// Asignar la fecha ajustada a cita.fechaCita
 			cita.fechaCita = fechaCitaAjustada
-
 
     var citaStored = await cita.save();
     if (!citaStored) {
@@ -80,6 +78,7 @@ var controller = {
 		console.log('Correo electrónico enviado:', info.response);
 	  }
 	});
+
 
 			var citaStored = await cita.save()
 			if (!citaStored) {
@@ -125,40 +124,40 @@ var controller = {
 			return res.status(500).send({ message: 'Error al recuperar los datos' })
 		}
 	},
-	
+
 	getCitasPorFecha: async function (req, res) {
 		try {
 			// Capturar la fecha del parámetro de consulta
-			const { fecha } = req.query;
-	
+			const { fecha } = req.query
+
 			if (!fecha) {
-				return res.status(400).send({ message: 'La fecha es requerida' });
+				return res.status(400).send({ message: 'La fecha es requerida' })
 			}
-	
+
 			// Convertir la fecha a objeto Date (asegurarse de que se maneja correctamente)
-			const fechaInicio = new Date(fecha);
-			const fechaFin = new Date(fecha);
-			fechaFin.setUTCHours(23, 59, 59, 999); // Final del día
-	
+			const fechaInicio = new Date(fecha)
+			const fechaFin = new Date(fecha)
+			fechaFin.setUTCHours(23, 59, 59, 999) // Final del día
+
 			// Buscar citas en el rango de la fecha
 			const citas = await Cita.find({
 				fechaCita: {
 					$gte: fechaInicio, // Inicio del día
-					$lte: fechaFin,    // Fin del día
+					$lte: fechaFin, // Fin del día
 				},
-			});
-	
+			})
+
 			if (!citas || citas.length === 0) {
-				return res.status(404).send({ message: 'No hay citas para esta fecha' });
+				return res.status(404).send({ message: 'No hay citas para esta fecha' })
 			}
-	
-			return res.status(200).send({ citas });
+
+			return res.status(200).send({ citas })
 		} catch (error) {
-			console.error('Error al obtener citas por fecha:', error);
-			return res.status(500).send({ message: 'Error al obtener citas', error });
+			console.error('Error al obtener citas por fecha:', error)
+			return res.status(500).send({ message: 'Error al obtener citas', error })
 		}
 	},
-	
+
 	getCitaBetweenDates: async function (req, res) {
 		try {
 			var fechaInicio = new Date(req.params.dateFrom)
