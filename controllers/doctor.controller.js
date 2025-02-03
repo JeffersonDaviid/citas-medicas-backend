@@ -22,6 +22,8 @@ var controller = {
       var params = req.body;
       doctor.nombre = params.nombre;
       doctor.especialidad = params.especialidad;
+      doctor.correo = params.correo;
+      doctor.contrasena = params.contrasena;
 
       var doctorStored = await doctor.save();
       if (!doctorStored) {
