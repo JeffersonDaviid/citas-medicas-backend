@@ -27,4 +27,5 @@ router.get('/inicio', (req, res) => {
   // Eliminar cita
 router.delete('/cita/:id', authMiddleware, CitaController.deleteCita);
 
-module.exports = router;
+module.exports = router
+
