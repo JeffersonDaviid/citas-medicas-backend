@@ -108,7 +108,7 @@ function generateHorariosDisponibles(doctorId, startDate, interval) {
     currentDay.add(1, 'days');
   }
 
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 15; i++) {
     let dayStart = currentDay.clone().startOf('day').add(8, 'hours');
     let dayEnd = currentDay.clone().startOf('day').add(17, 'hours');
 

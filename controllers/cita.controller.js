@@ -31,14 +31,12 @@ var controller = {
 			cita.doctor = params.doctor
 			cita.fechaRegistro = new Date()
 
-			// Suponiendo que params.fechaCita es un string en formato DD-MM-YYYY
-			const [day, month, year] = params.fechaCita.split('-')
+			// Suponiendo que params.fechaCita es un string en formato YYYY-MM-DD
+			const fechaCita = params.fechaCita;
 
-			// Ajustar la hora a las 12:00 PM (mediodía) en UTC
-			const fechaCitaAjustada = new Date(Date.UTC(year, month - 1, day, 12, 0, 0)) // 12:00 PM UTC
-
+			const [year, month, day] = fechaCita.split('-');
 			// Asignar la fecha ajustada a cita.fechaCita
-			cita.fechaCita = fechaCitaAjustada
+			cita.fechaCita = new Date(year, month-1, day);
 
 			var citaStored = await cita.save()
 			if (!citaStored) {
