@@ -28,6 +28,6 @@ router.get('/citas-por-fecha', authMiddleware, CitaController.getCitasPorFecha)
 
 // Eliminar cita
 router.delete('/cita/:id', authMiddleware, CitaController.deleteCita)
-router.get('/cancelar-cita/:id', authMiddleware, CitaController.deleteCita)
+router.get('/cancelar-cita/:id', CitaController.deleteCitaEmail)
 
 module.exports = router

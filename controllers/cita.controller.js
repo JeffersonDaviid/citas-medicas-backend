@@ -209,6 +209,18 @@ var controller = {
 	deleteCita: async function (req, res) {
 		try {
 			var citaId = req.params.id
+			var citaRemoved = await Cita.findByIdAndDelete(citaId)
+			if (!citaRemoved)
+				return res.status(404).send({ message: 'La cita no se puede eliminar' })
+			return res.status(200).send({ citaRemoved })
+		} catch (error) {
+			return res.status(500).send({ message: 'Error al eliminar los datos' })
+		}
+	},
+
+	deleteCitaEmail: async function (req, res) {
+		try {
+			var citaId = req.params.id
 			var cita = Cita.findById(citaId)
 			// Enviar correo electrónico al usuario
 			var paciente = await Usuario.findOne({ cedula: cita.cedulaPaciente })
@@ -252,8 +264,7 @@ var controller = {
 				`,
 			}
 			var citaRemoved = await Cita.findByIdAndDelete(citaId)
-			if (!citaRemoved)
-				return res.status(404).send({ message: 'La cita no se puede eliminar' })
+			if (!citaRemoved) return res.status(404).send({ message: 'La cita no existe' })
 			transporter.sendMail(mailOptions, (error, info) => {
 				if (error) {
 					console.error('Error al enviar el correo electrónico:', error)
