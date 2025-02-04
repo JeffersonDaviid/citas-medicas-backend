@@ -248,10 +248,10 @@ var controller = {
 					<p style="color: #34495e; text-align: center;">Hola <strong>${paciente.nombre}</strong>, lamentamos informarte que tu cita ha sido cancelada.</p>
 					
 					<div style="background-color: #ffffff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
-						<p><strong>ID:</strong> ${citaStored._id}</p>
-						<p><strong>Detalles:</strong> ${citaStored.detalles}</p>
+						<p><strong>ID:</strong> ${cita._id}</p>
+						<p><strong>Detalles:</strong> ${cita.detalles}</p>
 						<p><strong>Especialidad:</strong> ${doctorRes.especialidad}</p>
-						<p><strong>Hora:</strong> ${citaStored.hora}</p>
+						<p><strong>Hora:</strong> ${cita.hora}</p>
 						<p><strong>Fecha de Cita:</strong> ${formattedDateCapitalized}</p>
 					</div>
 			
