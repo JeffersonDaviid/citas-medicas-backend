@@ -78,11 +78,23 @@ var controller = {
       📍 No olvides llegar 15 minutos antes de tu cita.
     </p>
 
+		<p style="text-align: center; margin-top: 20px;">
+  <a href="https://citas-medicas-backend.onrender.com/cancelar-cita/${citaStored._id}" 
+     style="display: inline-block; padding: 10px 20px; font-size: 16px; color: #fff; background-color: #e74c3c; text-decoration: none; border-radius: 5px;">
+    Cancelar Cita
+  </a>
+</p>
+
     <p style="text-align: center; font-size: 14px; color: #7f8c8d;">
       📩 Si tienes preguntas, contáctanos a <a href="mailto:contacto@clinica.com" style="color: #3498db;">contacto@clinica.com</a>
     </p>
   </div>
   `,
+			}
+
+			var citaStored = await cita.save()
+			if (!citaStored) {
+				return res.status(404).send({ message: 'No se guardo la cita' })
 			}
 
 			transporter.sendMail(mailOptions, (error, info) => {
@@ -92,11 +104,6 @@ var controller = {
 					console.log('Correo electrónico enviado:', info.response)
 				}
 			})
-
-			var citaStored = await cita.save()
-			if (!citaStored) {
-				return res.status(404).send({ message: 'No se guardo la cita' })
-			}
 			return res.status(201).send({ cita: citaStored })
 		} catch (error) {
 			console.error('Error al guardar la cita:', error)
@@ -202,10 +209,59 @@ var controller = {
 	deleteCita: async function (req, res) {
 		try {
 			var citaId = req.params.id
+			var cita = Cita.findById(citaId)
+			// Enviar correo electrónico al usuario
+			var paciente = await Usuario.findOne({ cedula: cita.cedulaPaciente })
+			var doctorRes = await Doctor.findById(cita.doctor)
+
+			const formattedDate = cita.fechaCita.toLocaleDateString('es-ES', {
+				weekday: 'long', // Nombre completo del día (ej. lunes)
+				day: 'numeric', // Día del mes (ej. 2)
+				month: 'long', // Nombre completo del mes (ej. agosto)
+				year: 'numeric', // Año (ej. 2025)
+			})
+
+			const formattedDateCapitalized =
+				formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1)
+
+			const mailOptions = {
+				from: 'c99652451@gmail.com',
+				to: paciente.email,
+				subject: 'Tu cita médica ha sido cancelada',
+				html: `
+				<div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;">
+					<h2 style="color: #e74c3c; text-align: center;">❌ Cita Médica Cancelada</h2>
+					<p style="color: #34495e; text-align: center;">Hola <strong>${paciente.nombre}</strong>, lamentamos informarte que tu cita ha sido cancelada.</p>
+					
+					<div style="background-color: #ffffff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);">
+						<p><strong>ID:</strong> ${citaStored._id}</p>
+						<p><strong>Detalles:</strong> ${citaStored.detalles}</p>
+						<p><strong>Especialidad:</strong> ${doctorRes.especialidad}</p>
+						<p><strong>Hora:</strong> ${citaStored.hora}</p>
+						<p><strong>Fecha de Cita:</strong> ${formattedDateCapitalized}</p>
+					</div>
+			
+					<p style="text-align: center; margin-top: 20px; font-weight: bold; color: #e74c3c;">
+						⚠️ Si esta cancelación fue un error, por favor contacta con nosotros.
+					</p>
+			
+					<p style="text-align: center;">
+						📩 Contáctanos en <a href="mailto:contacto@clinica.com" style="color: #3498db;">contacto@clinica.com</a> para más información.
+					</p>
+				</div>
+				`,
+			}
 			var citaRemoved = await Cita.findByIdAndDelete(citaId)
 			if (!citaRemoved)
 				return res.status(404).send({ message: 'La cita no se puede eliminar' })
-			return res.status(200).send({ citaRemoved })
+			transporter.sendMail(mailOptions, (error, info) => {
+				if (error) {
+					console.error('Error al enviar el correo electrónico:', error)
+				} else {
+					console.log('Correo electrónico enviado:', info.response)
+				}
+				return res.status(200).send({ citaRemoved })
+			})
 		} catch (error) {
 			return res.status(500).send({ message: 'Error al eliminar los datos' })
 		}
