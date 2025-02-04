@@ -36,7 +36,8 @@ var controller = {
 
 			const [year, month, day] = fechaCita.split('-')
 			// Asignar la fecha ajustada a cita.fechaCita
-			cita.fechaCita = new Date(year, month - 1, day)
+			cita.fechaCita = new Date(year, month - 1, day) // Año, mes (ajustado -1), día
+			cita.fechaCita.setHours(12, 0, 0, 0) // Establecer la hora a 12 PM, 0 minutos, 0 segundos, 0 milisegundos
 
 			var citaStored = await cita.save()
 			if (!citaStored) {
@@ -90,11 +91,6 @@ var controller = {
     </p>
   </div>
   `,
-			}
-
-			var citaStored = await cita.save()
-			if (!citaStored) {
-				return res.status(404).send({ message: 'No se guardo la cita' })
 			}
 
 			transporter.sendMail(mailOptions, (error, info) => {
