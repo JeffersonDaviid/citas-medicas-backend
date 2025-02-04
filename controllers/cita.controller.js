@@ -222,7 +222,27 @@ var controller = {
 		try {
 			var citaId = req.params.id
 			var cita = await Cita.findById(citaId)
-			if (!cita) return res.status(404).send({ message: 'La cita no existe' })
+			if (!cita) {
+				return res.status(404).send(`
+					<div style="
+						font-family: Arial, sans-serif;
+						max-width: 500px;
+						margin: 20px auto;
+						padding: 20px;
+						border-radius: 10px;
+						background-color: #f8d7da;
+						color: #721c24;
+						text-align: center;
+						box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+					">
+						<h2>❌ Cita No Encontrada</h2>
+						<p style="font-size: 16px;">
+							La cita que estás buscando no existe o ha sido eliminada. 
+							Verifica la información ingresada e inténtalo nuevamente.
+						</p>
+					</div>
+				`)
+			}
 			var paciente = await Usuario.findOne({ cedula: cita.cedulaPaciente })
 			if (!paciente) return res.status(404).send({ message: 'El paciente no existe' })
 			var doctorRes = await Doctor.findById(cita.doctor)
@@ -274,7 +294,40 @@ var controller = {
 					console.log('Correo electrónico enviado:', info.response)
 				}
 			})
-			return res.status(200).send(`<h2>La cita ha sido cancelada</h2>`)
+			return res.status(200).send(`
+				<div style="
+					font-family: Arial, sans-serif;
+					max-width: 500px;
+					margin: 20px auto;
+					padding: 20px;
+					border-radius: 10px;
+					background-color: #f8f9fa;
+					text-align: center;
+					box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+				">
+					<h2 style="color: #e74c3c;">❌ Cita Cancelada</h2>
+					<p style="color: #34495e; font-size: 16px;">
+						Tu cita ha sido cancelada exitosamente. Si necesitas más información o deseas reprogramarla, 
+						por favor contáctanos.
+					</p>
+					
+					<a href="mailto:contacto@clinica.com" style="
+						display: inline-block;
+						margin-top: 15px;
+						padding: 10px 20px;
+						font-size: 16px;
+						color: white;
+						background-color: #3498db;
+						border-radius: 5px;
+						text-decoration: none;
+						font-weight: bold;
+						transition: background 0.3s ease;
+					" onmouseover="this.style.backgroundColor='#2980b9'"
+					onmouseout="this.style.backgroundColor='#3498db'">
+						📩 Contactar Soporte
+					</a>
+				</div>
+			`)
 		} catch (error) {
 			console.log(error)
 			return res.status(500).send({ message: 'Error al eliminar la cita' })
