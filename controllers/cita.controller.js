@@ -222,9 +222,11 @@ var controller = {
 		try {
 			var citaId = req.params.id
 			var cita = await Cita.findById(citaId)
-			// Enviar correo electrónico al usuario
+			if (!cita) return res.status(404).send({ message: 'La cita no existe' })
 			var paciente = await Usuario.findOne({ cedula: cita.cedulaPaciente })
+			if (!paciente) return res.status(404).send({ message: 'El paciente no existe' })
 			var doctorRes = await Doctor.findById(cita.doctor)
+			if (!doctorRes) return res.status(404).send({ message: 'El doctor no existe' })
 
 			const formattedDate = cita.fechaCita.toLocaleDateString('es-ES', {
 				weekday: 'long', // Nombre completo del día (ej. lunes)
@@ -271,8 +273,8 @@ var controller = {
 				} else {
 					console.log('Correo electrónico enviado:', info.response)
 				}
-				return res.status(200).send({ citaRemoved })
 			})
+			return res.status(200).send(`<h2>La cita ha sido cancelada</h2>`)
 		} catch (error) {
 			console.log(error)
 			return res.status(500).send({ message: 'Error al eliminar la cita' })
