@@ -223,24 +223,78 @@ var controller = {
 			var citaId = req.params.id
 			var cita = await Cita.findById(citaId)
 			if (!cita) {
-				return res.status(404).send(`
-					<div style="
-						font-family: Arial, sans-serif;
-						max-width: 500px;
-						margin: 20px auto;
-						padding: 20px;
-						border-radius: 10px;
-						background-color: #f8d7da;
-						color: #721c24;
-						text-align: center;
-						box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-					">
-						<h2>❌ Cita No Encontrada</h2>
-						<p style="font-size: 16px;">
-							La cita que estás buscando no existe o ha sido eliminada. 
-							Verifica la información ingresada e inténtalo nuevamente.
-						</p>
-					</div>
+				return res.status(404).send(`<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cita No Encontrada</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f8d7da;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 500px;
+      padding: 20px;
+      border-radius: 10px;
+      background-color: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      color: #721c24;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #721c24;
+      font-size: 16px;
+    }
+
+    .button {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      color: white;
+      background-color: #c0392b;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+
+    .button:hover {
+      background-color: #a93226;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>❌ Cita No Encontrada</h2>
+    <p>La cita que estás buscando no existe o ha sido eliminada. Verifica la información ingresada e inténtalo
+      nuevamente.</p>
+  </div>
+</body>
+
+</html>
+
 				`)
 			}
 			var paciente = await Usuario.findOne({ cedula: cita.cedulaPaciente })
@@ -295,38 +349,68 @@ var controller = {
 				}
 			})
 			return res.status(200).send(`
-				<div style="
-					font-family: Arial, sans-serif;
-					max-width: 500px;
-					margin: 20px auto;
-					padding: 20px;
-					border-radius: 10px;
-					background-color: #f8f9fa;
-					text-align: center;
-					box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-				">
-					<h2 style="color: #e74c3c;">❌ Cita Cancelada</h2>
-					<p style="color: #34495e; font-size: 16px;">
-						Tu cita ha sido cancelada exitosamente. Si necesitas más información o deseas reprogramarla, 
-						por favor contáctanos.
-					</p>
-					
-					<a href="mailto:contacto@clinica.com" style="
-						display: inline-block;
-						margin-top: 15px;
-						padding: 10px 20px;
-						font-size: 16px;
-						color: white;
-						background-color: #3498db;
-						border-radius: 5px;
-						text-decoration: none;
-						font-weight: bold;
-						transition: background 0.3s ease;
-					" onmouseover="this.style.backgroundColor='#2980b9'"
-					onmouseout="this.style.backgroundColor='#3498db'">
-						📩 Contactar Soporte
-					</a>
-				</div>
+				<!DOCTYPE html>
+				<html lang="es">
+				<head>
+					<meta charset="UTF-8">
+					<meta name="viewport" content="width=device-width, initial-scale=1.0">
+					<title>Cita Cancelada</title>
+					<style>
+						* {
+							margin: 0;
+							padding: 0;
+							box-sizing: border-box;
+						}
+						body {
+							font-family: Arial, sans-serif;
+							width: 100vw;
+							height: 100vh;
+							display: flex;
+							align-items: center;
+							justify-content: center;
+							background-color: #f8f9fa;
+							text-align: center;
+						}
+						.container {
+							max-width: 500px;
+							padding: 20px;
+							border-radius: 10px;
+							background-color: white;
+							box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+						}
+						h2 {
+							color: #e74c3c;
+							margin-bottom: 10px;
+						}
+						p {
+							color: #34495e;
+							font-size: 16px;
+						}
+						.button {
+							display: inline-block;
+							margin-top: 15px;
+							padding: 10px 20px;
+							font-size: 16px;
+							color: white;
+							background-color: #3498db;
+							border-radius: 5px;
+							text-decoration: none;
+							font-weight: bold;
+							transition: background 0.3s ease;
+						}
+						.button:hover {
+							background-color: #2980b9;
+						}
+					</style>
+				</head>
+				<body>
+					<div class="container">
+						<h2>❌ Cita Cancelada</h2>
+						<p>Tu cita ha sido cancelada exitosamente. Si necesitas más información o deseas reprogramarla, por favor contáctanos.</p>
+						<a href="mailto:contacto@clinica.com" class="button">📩 Contactar Soporte</a>
+					</div>
+				</body>
+				</html>
 			`)
 		} catch (error) {
 			console.log(error)
