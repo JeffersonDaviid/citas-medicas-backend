@@ -221,7 +221,7 @@ var controller = {
 	deleteCitaEmail: async function (req, res) {
 		try {
 			var citaId = req.params.id
-			var cita = Cita.findById(citaId)
+			var cita = await Cita.findById(citaId)
 			// Enviar correo electrónico al usuario
 			var paciente = await Usuario.findOne({ cedula: cita.cedulaPaciente })
 			var doctorRes = await Doctor.findById(cita.doctor)
@@ -274,7 +274,8 @@ var controller = {
 				return res.status(200).send({ citaRemoved })
 			})
 		} catch (error) {
-			return res.status(500).send({ message: 'Error al eliminar los datos' })
+			console.log(error)
+			return res.status(500).send({ message: 'Error al eliminar la cita' })
 		}
 	},
 }
