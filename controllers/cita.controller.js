@@ -145,13 +145,12 @@ var controller = {
 	//Obtener citas por fecha especifica
 	getCitasPorFechaDoc: async function (req, res) {
 		try {
-			// Capturar la fecha del parámetro de consulta
-			const doctorId = req.params.doctorId;
-			const { fecha } = req.query
+			const doctorId = req.params.id
+			const fecha = req.params.fecha
 
 			if (!doctorId) {
-				return res.status(400).send({ message: 'El ID del doctor es requerido' });
-			  }
+				return res.status(400).send({ message: 'El ID del doctor es requerido' })
+			}
 
 			if (!fecha) {
 				return res.status(400).send({ message: 'La fecha es requerida' })
@@ -166,17 +165,19 @@ var controller = {
 			const citas = await Cita.find({
 				doctor: doctorId,
 				fechaCita: { $gte: fechaInicio, $lte: fechaFin },
-			  }).populate('paciente', 'nombre cedula email');
-		  
-			  if (!citas || citas.length === 0) {
-				return res.status(404).send({ message: 'No hay citas para esta fecha' });
-			  }
-		  
-			  return res.status(200).send({ citas });
-			} catch (error) {
-			  console.error('Error al obtener citas por doctor y fecha:', error);
-			  return res.status(500).send({ message: 'Error al obtener citas', error });
+			})
+
+			console.log(citas)
+
+			if (!citas || citas.length === 0) {
+				return res.status(404).send({ message: 'No hay citas para esta fecha' })
 			}
+
+			return res.status(200).send({ citas })
+		} catch (error) {
+			console.error('Error al obtener citas por doctor y fecha:', error)
+			return res.status(500).send({ message: 'Error al obtener citas', error })
+		}
 	},
 
 	getCitaBetweenDates: async function (req, res) {

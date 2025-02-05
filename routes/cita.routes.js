@@ -25,7 +25,11 @@ router.get('/citas/:dateFrom/:dateTo', authMiddleware, CitaController.getCitaBet
 router.put('/cita/:id', authMiddleware, CitaController.updateCita)
 
 //Obtener citas por fecha especifica y doctor
-router.get('/citas-por-fecha', authMiddleware, CitaController.getCitasPorFechaDoc)
+router.get(
+	'/citas-por-fecha/:id/:fecha',
+	authMiddleware,
+	CitaController.getCitasPorFechaDoc
+)
 
 // Eliminar cita
 router.delete('/cita/:id', authMiddleware, CitaController.deleteCita)

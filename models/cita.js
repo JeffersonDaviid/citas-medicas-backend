@@ -7,6 +7,7 @@ var CitaSchema = new Schema({
 	hora: String,
 	fechaRegistro: Date,
 	fechaCita: Date,
-	doctor: { type: Schema.Types.ObjectId, ref: 'Doctor' }})
+	doctor: { type: Schema.Types.ObjectId, ref: 'Doctor' },
+})
 
 module.exports = mongoose.model('Cita', CitaSchema)
