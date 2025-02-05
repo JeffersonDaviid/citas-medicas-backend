@@ -6,7 +6,7 @@ var app = require('./app')
 mongoose.set('strictQuery', false)
 mongoose
 	.connect(
-		'mongodb://mongo:xFfDFFUxCLxClEOJqZfulXEzggfquzrl@monorail.proxy.rlwy.net:19983',
+		'mongodb://mongo:NdIUxKcPdRTUKljKamFeUXMoOavaKyqf@viaduct.proxy.rlwy.net:42492',
 		{}
 	)
 	.then(() => {
