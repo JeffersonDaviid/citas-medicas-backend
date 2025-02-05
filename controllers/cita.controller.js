@@ -167,13 +167,28 @@ var controller = {
 				fechaCita: { $gte: fechaInicio, $lte: fechaFin },
 			})
 
-			console.log(citas)
+			let listaCitas = []
+
+			for (const cita of citas) {
+				const paciente = await Usuario.findOne({ cedula: cita.cedulaPaciente })
+
+				if (!paciente) {
+					return res.status(404).send({ message: 'El paciente no existe' })
+				}
+
+				listaCitas.push({
+					...cita.toObject(), // Convertimos el documento Mongoose a un objeto plano
+					paciente,
+				})
+			}
+
+			console.log(listaCitas)
 
 			if (!citas || citas.length === 0) {
 				return res.status(404).send({ message: 'No hay citas para esta fecha' })
 			}
 
-			return res.status(200).send({ citas })
+			return res.status(200).send(listaCitas)
 		} catch (error) {
 			console.error('Error al obtener citas por doctor y fecha:', error)
 			return res.status(500).send({ message: 'Error al obtener citas', error })
