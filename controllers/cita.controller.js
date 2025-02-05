@@ -2,6 +2,7 @@ var Cita = require('../models/cita.js')
 var Doctor = require('../models/doctor.js')
 var transporter = require('../nodemailer.js')
 const Usuario = require('../models/usuario.js')
+
 var controller = {
 	inicio: function (req, res) {
 		return res
@@ -141,10 +142,16 @@ var controller = {
 		}
 	},
 
-	getCitasPorFecha: async function (req, res) {
+	//Obtener citas por fecha especifica
+	getCitasPorFechaDoc: async function (req, res) {
 		try {
 			// Capturar la fecha del parámetro de consulta
+			const doctorId = req.params.doctorId;
 			const { fecha } = req.query
+
+			if (!doctorId) {
+				return res.status(400).send({ message: 'El ID del doctor es requerido' });
+			  }
 
 			if (!fecha) {
 				return res.status(400).send({ message: 'La fecha es requerida' })
@@ -155,23 +162,21 @@ var controller = {
 			const fechaFin = new Date(fecha)
 			fechaFin.setUTCHours(23, 59, 59, 999) // Final del día
 
-			// Buscar citas en el rango de la fecha
+			// Buscar citas del doctor en la fecha específica
 			const citas = await Cita.find({
-				fechaCita: {
-					$gte: fechaInicio, // Inicio del día
-					$lte: fechaFin, // Fin del día
-				},
-			})
-
-			if (!citas || citas.length === 0) {
-				return res.status(404).send({ message: 'No hay citas para esta fecha' })
+				doctor: doctorId,
+				fechaCita: { $gte: fechaInicio, $lte: fechaFin },
+			  }).populate('paciente', 'nombre cedula email');
+		  
+			  if (!citas || citas.length === 0) {
+				return res.status(404).send({ message: 'No hay citas para esta fecha' });
+			  }
+		  
+			  return res.status(200).send({ citas });
+			} catch (error) {
+			  console.error('Error al obtener citas por doctor y fecha:', error);
+			  return res.status(500).send({ message: 'Error al obtener citas', error });
 			}
-
-			return res.status(200).send({ citas })
-		} catch (error) {
-			console.error('Error al obtener citas por fecha:', error)
-			return res.status(500).send({ message: 'Error al obtener citas', error })
-		}
 	},
 
 	getCitaBetweenDates: async function (req, res) {
