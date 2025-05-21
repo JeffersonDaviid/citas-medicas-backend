@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb_citas_medicas
+    restart: unless-stopped
+    ports:
+      - "27019:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=citas_medicas
+    volumes:
+      - mongo_data_citas_medicas:/data/db
+
+volumes:
+  mongo_data_citas_medicas:

@@ -4,6 +4,9 @@
     "description": "Proyecto concesionario",
     "main": "index.js",
     "scripts": {
+        "db": "docker-compose up -d",
+        "db:stop": "docker-compose down",
+        "db:delete": "docker-compose down -v",
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "node --watch index.js"
     },

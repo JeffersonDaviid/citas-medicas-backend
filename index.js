@@ -6,7 +6,7 @@ var app = require('./app')
 mongoose.set('strictQuery', false)
 mongoose
 	.connect(
-		'mongodb://mongo:NsvpTBlDKBdWjQuxFPhVylBHDhDlHgUv@autorack.proxy.rlwy.net:11629',
+		'mongodb://admin:password@localhost:27019', // docker-compose
 		{}
 	)
 	.then(() => {
